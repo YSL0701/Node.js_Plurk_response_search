@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <title>Document</title>
+</head>
+<body>
+    <div id="app">
+        <form id="url" action="">
+            網址:<input type="text" name="theUrl" v-model="getUrl" onkeydown="if(event.keyCode==13){return false;}" autocomplete="off" style="width: 600px;"><br><br>
+            帳號:<input type="text" name="account" v-model="getAccount" onkeydown="if(event.keyCode==13){return false;}" autocomplete="off" style="width: 300px;"><br><br>
+        </form>
+        <button @click="post">送出</button><br><br>
+        <img src="ajax-loader.gif" v-if="ajaxStart==true" alt="ajax">
+        <span v-if="error==true">發生錯誤</span>
+
+        <articlecontent v-if="content!=[]" v-for="item in content" :reply-content="item" :account="account"></articlecontent>
+    </div>
+    
+
+</body>
+<script type="text/x-template" id="reply">
+    <div v-html="reply" style="background-color:#C4FFC2;margin-top:10px;width:300px;"></div>
+</script>
+<script>
+    Vue.component('articlecontent',{
+        props:['replyContent','account'],
+        template:"#reply",
+        data:function(){
+            return{
+                reply:`${this.account}:${this.replyContent}`
+            }
+        }
+    })
+
+    var app = new Vue({
+        el:"#app",
+        data:{
+            content:[],
+            getUrl:"",
+            getAccount:"",
+            account:"",
+            ajaxStart:false,
+            error:false
+        },
+        methods:{
+            post:function(){
+                if(this.getUrl!="" &&this.getAccount!=""){
+                    var vm = this;
+                    vm.content = [];
+                    vm.ajaxStart = true;
+                    vm.error = false;
+                    $.ajax({
+                        url:"http://localhost:3000/api",
+                        type:"POST",
+                        data:$("#url").serialize(),
+                        success:function(result){
+                            console.log("成功");
+                            console.log(result);
+                            result.forEach(function(item){
+                                vm.content.push(item);
+                            })
+                            vm.account = vm.getAccount
+                            vm.ajaxStart = false;
+                        },
+                        error:function(err){
+                            console.log(err)
+                            vm.ajaxStart = false;
+                            vm.error = true;
+                        }
+                    })
+                }
+            }
+        }
+    })
+</script>
+</html>
