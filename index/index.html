@@ -32,7 +32,17 @@
         template:"#reply",
         data:function(){
             return{
-                reply:`${this.account}:${this.replyContent}`
+                // reply:`${this.account}:${this.replyContent}`
+            }
+        },
+        computed:{
+            reply() {
+                if(this.replyContent.indexOf('https://www.plurk.com/p/') ==0 || this.replyContent.indexOf('*') == 0){
+                    return `${this.replyContent}`
+                }
+                else{
+                    return `${this.account}:${this.replyContent}`
+                }
             }
         }
     })
